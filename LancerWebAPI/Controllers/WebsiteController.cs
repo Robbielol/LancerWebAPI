@@ -8,7 +8,11 @@ namespace LancerWebAPI.Controllers
     [ApiController]
     public class WebsiteController : ControllerBase
     {
-
+        IWebsiteServices websiteServices;
+        public WebsiteController() 
+        {
+            websiteServices = new WebsiteServices();
+        }
 
         // GET: api/<WebsiteController>
         [HttpGet]
@@ -42,8 +46,8 @@ namespace LancerWebAPI.Controllers
         {
         }
 
-        [HttpGet("{location}, {query}, {distance}")]
-        public IActionResult GetWebsites(string location, string query, double distance = 0)
+        [HttpGet("{location}/{query}/{distance}")]
+        public async Task<ActionResult<IEnumerable<WebsiteModel>>> GetWebsites(string location, string query,  double distance = 0)
         {
 
             if (string.IsNullOrEmpty(location) || string.IsNullOrEmpty(query))
@@ -51,8 +55,8 @@ namespace LancerWebAPI.Controllers
                 StatusCode(401, "Location and query are needed to supply percise data.");
             }
 
-            List<WebsiteModel> models = ClientServices.GetAllPlaces(location, query, distance);
-            return new List<WebsiteModel>();
+            List<WebsiteModel> models = (List<WebsiteModel>) await websiteServices.GetAllPlaces(location, query, distance);
+            return Ok(models);
         }
     }
 }

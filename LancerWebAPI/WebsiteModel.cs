@@ -1,8 +1,10 @@
-﻿namespace LancerWebAPI
+﻿using MongoDB.Bson;
+
+namespace LancerWebAPI
 {
     public class WebsiteModel
     {
-        public Guid Id { get; set; }
+        public ObjectId Id { get; set; }
         public required string Name { get; set; }
         public string WebsiteUrl { get; set; }
         public string Address { get; set; }
