@@ -3,8 +3,8 @@
     public interface IDatabaseService
     {
         public Task Create<T>(string query);
-        public void Read<T>(string query);
-        public void Update<T>(string query);
-        public void Delete<T>(string query);
+        public Task Read<T>(string query);
+        public Task Update<T>(string query);
+        public Task Delete<T>(string query);
     }
 }

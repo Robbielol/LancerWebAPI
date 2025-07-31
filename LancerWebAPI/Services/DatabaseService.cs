@@ -10,6 +10,12 @@ namespace LancerWebAPI.Services
 
         public override async Task Create<T>(string query)
         {
+            
+            
+        }
+
+        public override async Task Read<T>(string query)
+        {
             Console.WriteLine("Inserting record...");
             WebsiteModel websiteModel = new WebsiteModel
             {
@@ -27,19 +33,13 @@ namespace LancerWebAPI.Services
             {
                 Console.WriteLine(ex.ToString());
             }
-            
         }
 
-        public override void Read<T>(string query)
-        {
-            
-        }
-
-        public override void Update<T>(string query)
+        public override async Task Update<T>(string query)
         {
         }
 
-        public override void Delete<T>(string query)
+        public override async Task Delete<T>(string query)
         {
 
         }

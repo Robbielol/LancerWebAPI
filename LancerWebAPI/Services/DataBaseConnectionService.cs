@@ -29,10 +29,10 @@ namespace LancerWebAPI.Services
 
         public abstract Task Create<T>(string query);
 
-        public abstract void Read<T>(string query);
+        public abstract Task Read<T>(string query);
 
-        public abstract void Update<T>(string query);
+        public abstract Task Update<T>(string query);
 
-        public abstract void Delete<T>(string query);
+        public abstract Task Delete<T>(string query);
     }
 }

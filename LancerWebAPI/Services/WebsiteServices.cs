@@ -10,7 +10,7 @@
             //Check if similiar query in in DB
             IDatabaseService service = new DatabaseService();
 
-            await service.Create<WebsiteModel>(query);
+            await service.Read<WebsiteModel>(query, collectionName);
 
             //Return if true if not continue
 
