@@ -18,8 +18,7 @@
 
             //Send data to DB
 
-            //Return data
-            
+            //Return data            
             return new List<WebsiteModel>();
         }
     }
