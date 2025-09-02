@@ -66,10 +66,11 @@ namespace LancerWebAPI.Services
             return allResults;
         }
 
-        public async Task<List<JsonObject>> GetGooglePlacesWithoutWebsite(List<JsonObject> googlePlaces)
+        public async Task<List<JsonObject>> GetGooglePlacesDetails(List<JsonObject> googlePlaces)
         {
-            List<WebsiteModel> businessNoWebsiteList = new List<WebsiteModel>();
-            foreach (var place in placeIdList)
+            
+            List<JsonObject> placesDetails = new List<JsonObject>();
+            foreach (var place in googlePlaces)
             {
                 string placeId = place["place_id"]?.ToString();
                 if (string.IsNullOrEmpty(placeId)) continue;
@@ -77,7 +78,7 @@ namespace LancerWebAPI.Services
                 string detailsUrl = Environment.GetEnvironmentVariable("G_PLACE_DETAILS_URL");
                 var parameters = new Dictionary<string, string>
                 {
-                    { "key", apiKey },
+                    { "key", _apiKey },
                     { "place_id", placeId }
                 };
 
@@ -87,42 +88,14 @@ namespace LancerWebAPI.Services
 
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
                 var encoding = ASCIIEncoding.ASCII;
-                JsonObject placeData;
                 using (var reader = new System.IO.StreamReader(response.GetResponseStream(), encoding))
                 {
                     string responseText = reader.ReadToEnd();
-                    placeData = JsonObject.Parse(responseText);
+                    placesDetails.Add((JsonObject)JsonObject.Parse(responseText));
                 };
-
-                if (placeData["result"] != null)
-                {
-                    var placeDetails = placeData["result"];
-                    string website = placeDetails["website"]?.ToString();
-                    double rating = placeDetails["rating"]?.ToObject<double>() ?? 0;
-
-                    if ((string.IsNullOrEmpty(website) || website.Contains("facebook") || website.Contains("instagram")) && rating >= 3.9)
-                    {
-                        string phoneNum = placeDetails["international_phone_number"]?.ToString() ?? "No phone number available";
-                        string address = placeDetails["formatted_address"]?.ToString() ?? "No address available";
-
-                        businessNoWebsiteList.Add(new WebsiteModel()
-                        {
-                            Name = placeDetails["name"]?.ToString(),
-                            Website = website,
-                            Rating = rating,
-                            PhoneNumber = phoneNum,
-                            Address = address
-                        });
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Error: No place details found.");
-                }
             }
-            Console.WriteLine(businessNoWebsiteList);
 
-            return businessNoWebsiteList;
+            return placesDetails;
         }
     }
 }
