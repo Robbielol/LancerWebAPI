@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using MongoDB.Driver;
+using System.Numerics;
 
 namespace LancerWebAPI.Services
 {
@@ -10,19 +11,13 @@ namespace LancerWebAPI.Services
 
         public override async Task Create<T>(string query)
         {
-            
-            
-        }
-
-        public override async Task Read<T>(string query)
-        {
             Console.WriteLine("Inserting record...");
             WebsiteModel websiteModel = new WebsiteModel
             {
                 Name = "Test",
                 WebsiteUrl = "www.url.com",
                 Address = "123 place St, Vancouver",
-                Phone = 123456789
+                Phone = "123456789"
             };
             try
             {
@@ -33,6 +28,16 @@ namespace LancerWebAPI.Services
             {
                 Console.WriteLine(ex.ToString());
             }
+
+        }
+
+        public override async Task<IEnumerable<T>> Read<T>(string query)
+        {
+            // Read from MongoDB and return list of records of type T
+            Console.WriteLine("Reading records...");
+            var results = await _collection.FindAsync(Builders<WebsiteModel>.Filter.Empty);
+            var list = results.ToList();
+            return list is List<T> typedList ? typedList : new List<T>();
         }
 
         public override async Task Update<T>(string query)

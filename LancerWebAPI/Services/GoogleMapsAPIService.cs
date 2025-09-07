@@ -27,7 +27,7 @@ namespace LancerWebAPI.Services
 
         }
 
-        public async Task<List<JsonObject>> GetGooglePlaces(string location, string distance, string query)
+        public async Task<List<JsonObject>> GetGooglePlaces(string location, string query, int distance)
         {            
              // Creates list of JSON Objects
             var allResults = new List<JsonObject>();
