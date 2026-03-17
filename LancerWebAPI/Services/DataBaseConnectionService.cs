@@ -27,9 +27,9 @@ namespace LancerWebAPI.Services
             }
         }
 
-        public abstract Task Create<T>(string query);
+        public abstract Task Create<T>(IEnumerable<T> list);
 
-        public abstract Task Read<T>(string query);
+        public abstract Task<IEnumerable<T>> Read<T>(string filter);
 
         public abstract Task Update<T>(string query);
 

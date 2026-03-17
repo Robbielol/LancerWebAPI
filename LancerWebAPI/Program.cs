@@ -1,8 +1,11 @@
 // Program.cs in .NET 6+
+using LancerWebAPI.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Define a specific CORS policy
 var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
+IConfiguration config = builder.Configuration;
 
 builder.Services.AddCors(options =>
 {
@@ -21,6 +24,8 @@ builder.Services.AddCors(options =>
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddScoped<GoogleMapsAPIService>();
+builder.Services.AddScoped<WebsiteServices>();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();

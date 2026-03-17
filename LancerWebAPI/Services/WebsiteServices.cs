@@ -4,30 +4,34 @@ namespace LancerWebAPI.Services
 {
     public class WebsiteServices : IWebsiteServices
     {
-        public WebsiteServices() { }
+
+        private IDatabaseService local;
+        private readonly GoogleMapsAPIService _googleMapsAPIService;
+        public WebsiteServices(GoogleMapsAPIService googleMapsAPIService) { 
+            _googleMapsAPIService = googleMapsAPIService;
+            local = new DatabaseService(); 
+        }
 
 
         public async Task<IEnumerable<WebsiteModel>> GetAllPlaces(string location, string query, int distance)
         {
+
             //Check if similiar query in in DB
-            IDatabaseService service = new DatabaseService();
+            IEnumerable<WebsiteModel> existingPlaces = await local.Read<WebsiteModel>(query);
 
-            IEnumerable<WebsiteModel> existingPlaces = await service.Read<WebsiteModel>(query);
-
-            //Return if true if not continue
+            //Return if has values if not continue
             if (existingPlaces != null && existingPlaces.Any())
             {
                 return existingPlaces;
             }
 
             //Go to GoogleAPI and Get Data
-            GoogleMapsAPIService googleMapsAPIService = new GoogleMapsAPIService();
-            List<JsonObject> placesDetails = await googleMapsAPIService.GetGooglePlaces(location, query, distance);
+            List<JsonObject> placesDetails = await _googleMapsAPIService.GetGooglePlaces(location, query, distance);
 
-            List<JsonObject> detailedPlaces = await googleMapsAPIService.GetGooglePlacesDetails(placesDetails);
+            List<JsonObject> detailedPlaces = await _googleMapsAPIService.GetGooglePlacesDetails(placesDetails);
             List<WebsiteModel> filteredPlaces = FilterPlaces(detailedPlaces);
             //Send data to DB
-
+            await local.Create<WebsiteModel>(filteredPlaces);
 
             //Return data            
             return filteredPlaces;
@@ -35,7 +39,7 @@ namespace LancerWebAPI.Services
 
         public List<WebsiteModel> FilterPlaces(List<JsonObject> placesDetails)
         {
-            List<WebsiteModel> placesNoWebsite = new List<WebsiteModel>();
+            List<WebsiteModel> placesNoWebsite = new();
 
             foreach (JsonObject place in placesDetails)
             {
@@ -59,7 +63,7 @@ namespace LancerWebAPI.Services
                             Name = placeDetails["name"]?.ToString(),
                             WebsiteUrl = website,
                             Rating = rating,
-                            Phone = phoneNum,
+                            Phone = int.TryParse(phoneNum, out int phone) ? phone : 0,
                             Address = address
                         };
                         placesNoWebsite.Add(jsonObj);

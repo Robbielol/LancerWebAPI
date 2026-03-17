@@ -4,27 +4,30 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Microsoft.Extensions.Configuration;
 
 namespace LancerWebAPI.Services
 {
     public class GoogleMapsAPIService
     {
+        private readonly string? _apiKey;
+        private readonly string? _apiKeySecret;
+        private readonly string? _url;
+        private readonly HttpClient _httpClient;
 
-        private string _apiKey;
-        private string _apiKeySecret;
-        private readonly string _url;
-        private HttpClient _httpClient;
-
-        public GoogleMapsAPIService()
+        public GoogleMapsAPIService(IConfiguration config)
         {
-            _apiKey = Environment.GetEnvironmentVariable("G_API_KEY"); ;
             _apiKeySecret = Environment.GetEnvironmentVariable("G_PLACEID_URL");
+            _apiKey = config["GoogleMaps:G_API_KEY"];
+            _url = config["GoogleMaps:BaseUrl"];
+
             _httpClient = new HttpClient();
-            _url = Environment.GetEnvironmentVariable("G_URL");
-            _httpClient.BaseAddress = new Uri(_url);
+            if (!string.IsNullOrEmpty(_url))
+            {
+                _httpClient.BaseAddress = new Uri(_url);
+            }
 
             _httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-
         }
 
         public async Task<List<JsonObject>> GetGooglePlaces(string location, string query, int distance)
