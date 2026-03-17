@@ -9,20 +9,13 @@ namespace LancerWebAPI.Services
             
         }
 
-        public override async Task Create<T>(string query)
+        public override async Task Create<T>(IEnumerable<T> list)
         {
-            Console.WriteLine("Inserting record...");
-            WebsiteModel websiteModel = new WebsiteModel
-            {
-                Name = "Test",
-                WebsiteUrl = "www.url.com",
-                Address = "123 place St, Vancouver",
-                Phone = "123456789"
-            };
+            Console.WriteLine("Inserting records...");
             try
             {
-                await _collection.InsertOneAsync(websiteModel);
-                Console.WriteLine("Record Inserted.");
+                await _collection.InsertManyAsync((IEnumerable<WebsiteModel>)list);
+                Console.WriteLine("Records Inserted.");
             }
             catch (Exception ex)
             {
@@ -31,13 +24,24 @@ namespace LancerWebAPI.Services
 
         }
 
-        public override async Task<IEnumerable<T>> Read<T>(string query)
+        public override async Task<IEnumerable<T>> Read<T>(String filter)
         {
             // Read from MongoDB and return list of records of type T
             Console.WriteLine("Reading records...");
-            var results = await _collection.FindAsync(Builders<WebsiteModel>.Filter.Empty);
-            var list = results.ToList();
-            return list is List<T> typedList ? typedList : new List<T>();
+            List<T> results = new List<T>();
+            try
+            {
+                List<WebsiteModel> list = await _collection.Find(x => x.Name == filter).ToListAsync();
+                foreach (var item in list)
+                {
+                    results.Add((T)(object)item);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            return results;
         }
 
         public override async Task Update<T>(string query)
