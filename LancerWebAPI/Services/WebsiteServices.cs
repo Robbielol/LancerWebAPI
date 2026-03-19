@@ -26,9 +26,8 @@ namespace LancerWebAPI.Services
             }
 
             //Go to GoogleAPI and Get Data
-            List<JsonObject> placesDetails = await _googleMapsAPIService.GetGooglePlaces(location, query, distance);
-
-            List<JsonObject> detailedPlaces = await _googleMapsAPIService.GetGooglePlacesDetails(placesDetails);
+            List<GooglePlaceModel> placesDetails = await _googleMapsAPIService.GetGooglePlaces(location, query, distance); 
+            List<GooglePlaceModel> detailedPlaces = await _googleMapsAPIService.GetGooglePlacesDetails(placesDetails);
             List<WebsiteModel> filteredPlaces = FilterPlaces(detailedPlaces);
             //Send data to DB
             await local.Create<WebsiteModel>(filteredPlaces);
@@ -37,34 +36,35 @@ namespace LancerWebAPI.Services
             return filteredPlaces;
         }
 
-        public List<WebsiteModel> FilterPlaces(List<JsonObject> placesDetails)
+        public List<WebsiteModel> FilterPlaces(List<GooglePlaceModel> placesDetails)
         {
             List<WebsiteModel> placesNoWebsite = new();
 
-            foreach (JsonObject place in placesDetails)
-            {
-                if (place["result"] != null)
+            foreach (GooglePlaceModel place in placesDetails)
+            {  
+                if (place != null)
                 {
-                    var placeDetails = place["result"];
-                    string website = placeDetails["website"]?.ToString();
+                    var placeDetails = place;
+                    string website = placeDetails.ToString();
                     double rating = 0;
-                    if (placeDetails["rating"] != null && double.TryParse(placeDetails["rating"]?.ToString(), out double parsedRating))
+
+                    if (placeDetails.Rating != null && double.TryParse(placeDetails.Rating.ToString(), out double parsedRating))
                     {
                         rating = parsedRating;
                     }
 
                     if ((string.IsNullOrEmpty(website) || website.Contains("facebook") || website.Contains("instagram")) && rating >= 3.9)
                     {
-                        string phoneNum = placeDetails["international_phone_number"]?.ToString() ?? "No phone number available";
-                        string address = placeDetails["formatted_address"]?.ToString() ?? "No address available";
+                     //   string phoneNum = placeDetails.?.ToString() ?? "No phone number available";
+                     //   string address = placeDetails["formatted_address"]?.ToString() ?? "No address available";
 
                         var jsonObj = new WebsiteModel
                         {
-                            Name = placeDetails["name"]?.ToString(),
+                            //Name = placeDetails["name"]?.ToString(),
                             WebsiteUrl = website,
                             Rating = rating,
-                            Phone = int.TryParse(phoneNum, out int phone) ? phone : 0,
-                            Address = address
+                          //  Phone = int.TryParse(phoneNum, out int phone) ? phone : 0,
+                           // Address = address
                         };
                         placesNoWebsite.Add(jsonObj);
                     }
