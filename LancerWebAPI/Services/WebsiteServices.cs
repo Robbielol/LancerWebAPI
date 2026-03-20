@@ -27,7 +27,9 @@ namespace LancerWebAPI.Services
 
             //Go to GoogleAPI and Get Data
             List<GooglePlaceModel> placesDetails = await _googleMapsAPIService.GetGooglePlaces(location, query, distance); 
+            // TODO Add next page token
             List<GooglePlaceModel> detailedPlaces = await _googleMapsAPIService.GetGooglePlacesDetails(placesDetails);
+            // TODO Safe detailsPlaces to DB, decide to filter first to after. 
             List<WebsiteModel> filteredPlaces = FilterPlaces(detailedPlaces);
             //Send data to DB
             await local.Create<WebsiteModel>(filteredPlaces);

@@ -77,29 +77,29 @@ namespace LancerWebAPI.Services
         {
             
             List<GooglePlaceModel> placesDetails = new List<GooglePlaceModel>();
+
             foreach (var place in googlePlaces)
             {
-                string placeId = place.Place_Id?.ToString();
-                if (string.IsNullOrEmpty(placeId)) continue;
+                if (string.IsNullOrEmpty(place.Place_Id)) continue;
 
-                string detailsUrl = "/maps/api/place/details/json?";
-                var parameters = new Dictionary<string, string>
+                // 1. Build URL correctly (avoiding double question marks)
+                string endpointPath = "maps/api/place/details/json";
+                string queryParams = $"?place_id={place.Place_Id}&key={_apiKey}";
+                string fullRequestUri = endpointPath + queryParams;
+
+                // 2. Use 'await' instead of '.Result' to prevent blocking the thread
+                var response = await _httpClient.GetAsync(fullRequestUri);
+
+                response.EnsureSuccessStatusCode();
+
+                // 3. Read into the specific Details response wrapper
+                var detailsResponse = await response.Content.ReadFromJsonAsync<GooglePlaceDetailsResponse>();
+
+                // 4. Add the successfully parsed detailed Result to our list
+                if (detailsResponse != null && detailsResponse.Result != null)
                 {
-                    { "key", _apiKey },
-                    { "place_id", placeId }
-                };
-
-                string url = $"{detailsUrl}?{string.Join("&", parameters.Select(x => $"{x.Key}={x.Value}"))}";
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-                request.Method = "GET";
-
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                var encoding = ASCIIEncoding.ASCII;
-                using (var reader = new StreamReader(response.GetResponseStream(), encoding))
-                {
-                    string responseText = reader.ReadToEnd();
-                    //placesDetails.Add((JsonObject)JsonObject.Parse(responseText));
-                };
+                    placesDetails.Add(detailsResponse.Result);
+                }
             }
 
             return placesDetails;
