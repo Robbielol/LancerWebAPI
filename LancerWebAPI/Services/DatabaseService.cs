@@ -14,7 +14,7 @@ namespace LancerWebAPI.Services
             Console.WriteLine("Inserting records...");
             try
             {
-                await _collection.InsertManyAsync((IEnumerable<WebsiteModel>)list);
+                await _collection.InsertManyAsync((IEnumerable<GooglePlaceModel>)list);
                 Console.WriteLine("Records Inserted.");
             }
             catch (Exception ex)
@@ -31,7 +31,7 @@ namespace LancerWebAPI.Services
             List<T> results = new List<T>();
             try
             {
-                List<WebsiteModel> list = await _collection.Find(x => x.Name == filter).ToListAsync();
+                List<GooglePlaceModel> list = await _collection.Find(x => x.Name == filter).ToListAsync();
                 foreach (var item in list)
                 {
                     results.Add((T)(object)item);

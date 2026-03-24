@@ -8,7 +8,7 @@ namespace LancerWebAPI.Services
     {
         protected IMongoClient _client;
         protected IMongoDatabase _database;
-        protected IMongoCollection<WebsiteModel> _collection;
+        protected IMongoCollection<GooglePlaceModel> _collection;
 
         protected DataBaseConnectionService() 
         {
@@ -18,7 +18,7 @@ namespace LancerWebAPI.Services
                 Console.WriteLine("connecting to database...");
                 _client = new MongoClient(connectionString);
                 _database = _client.GetDatabase("local");
-                _collection = _database.GetCollection<WebsiteModel>("Websites");
+                _collection = _database.GetCollection<GooglePlaceModel>("Websites");
                 Console.WriteLine("Connected to database.");
             }
             catch (Exception ex)

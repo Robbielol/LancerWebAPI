@@ -2,6 +2,6 @@
 {
     public interface IWebsiteServices
     {
-        public Task<IEnumerable<WebsiteModel>> GetAllPlaces(string location, string query, int distance);
+        public Task<IEnumerable<GooglePlaceModel>> GetAllPlaces(string location, string query, int distance);
     }
 }

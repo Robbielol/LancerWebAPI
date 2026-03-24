@@ -6,10 +6,11 @@ namespace LancerWebAPI
 {
     public class GooglePlacesResponse
     {
-        public List<GooglePlaceModel> Results { get; set; }
-        public string Status { get; set; }
+        [JsonPropertyName("places")]
+        public List<GooglePlaceModel> Places { get; set; }
 
-        [JsonPropertyName("next_page_token")]
+        [JsonPropertyName("nextPageToken")]
         public string NextPageToken { get; set; }
-    }
+
+            }
 }

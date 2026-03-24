@@ -17,92 +17,98 @@ namespace LancerWebAPI.Services
 
         public GoogleMapsAPIService(IConfiguration config)
         {
-            _apiKeySecret = Environment.GetEnvironmentVariable("G_PLACEID_URL");
             _apiKey = config["GoogleMaps:G_API_KEY"];
-            _url = config["GoogleMaps:BaseUrl"];
-
             _httpClient = new HttpClient();
-            if (!string.IsNullOrEmpty(_url))
-            {
-                _httpClient.BaseAddress = new Uri(_url);
-            }
-
-            _httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
         }
 
         public async Task<List<GooglePlaceModel>> GetGooglePlaces(string location, string query, int distance)
-        {            
-            // Creates list of JSON Objects
-            GooglePlacesResponse resultData = new GooglePlacesResponse();
-            string nextPageToken = null;
+        {
+            List<GooglePlaceModel> allResults = new List<GooglePlaceModel>();
+            string activeToken = null;
 
-            Dictionary<string, string> parameters = new()
-            {
-                { "key", _apiKey },
-                { "location", location },
-                { "radius", distance.ToString() },
-                { "query", query }
-            };
+            // The New API Endpoint
+            string endpointUrl = "https://places.googleapis.com/v1/places:searchText";
 
             do
             {
-                // Checking 
-                if (!string.IsNullOrEmpty(nextPageToken))
+                // 1. Prepare the JSON body
+                // The new API handles natural language flawlessly
+                var requestBody = new
                 {
-                    parameters.Add("pagetoken", nextPageToken);
+                    textQuery = $"{query} in {location}",
+                    pageSize = 20,
+                    pageToken = activeToken // Will be null on the first run, which is perfect
+                };
+
+                // 2. Set up the POST request
+                var request = new HttpRequestMessage(HttpMethod.Post, endpointUrl);
+
+                // 3. Required Headers for the New API
+                request.Headers.Add("X-Goog-Api-Key", _apiKey);
+
+                // FIELD MASKING: This is the magic. We tell Google EXACTLY what to return.
+                request.Headers.Add("X-Goog-FieldMask", "places.id,places.displayName.text,places.formattedAddress,places.rating,places.websiteUri,places.nationalPhoneNumber,nextPageToken");
+
+                request.Content = JsonContent.Create(requestBody);
+
+                // 4. Send the Request
+                HttpResponseMessage response = await _httpClient.SendAsync(request);
+
+                // Check if it fails and print the exact reason from Google
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Google API Error: {errorContent}");
+                    response.EnsureSuccessStatusCode();
                 }
 
-                //Creating the URL
-                string endpointPath = "maps/api/place/textsearch/json?";
-                string fullRequestUri = endpointPath + string.Join("&", parameters.Select(x => $"{x.Key}={x.Value}"));
-                HttpResponseMessage response =  _httpClient.GetAsync(fullRequestUri).Result;
-                
-                // Throw an exception if the HTTP request failed
-                response.EnsureSuccessStatusCode();
+                // 5. Read the response
+                var resultData = await response.Content.ReadFromJsonAsync<GooglePlacesResponse>();
 
-                // Read into the ROOT object class
-                resultData = await response.Content.ReadFromJsonAsync<GooglePlacesResponse>();
-              
-                if (!string.IsNullOrEmpty(nextPageToken))
+                // 6. Add the current page to our master list
+                if (resultData != null && resultData.Places != null)
                 {
-                    await Task.Delay(1000); // Delay for the next page token to activate
+                    allResults.AddRange(resultData.Places);
                 }
 
-            } while (!string.IsNullOrEmpty(nextPageToken));
+                // 7. Pagination - Tokens in the New API are valid instantly! No delays needed.
+                activeToken = resultData?.NextPageToken;
 
-            return resultData.Results;
+            } while (!string.IsNullOrEmpty(activeToken));
+
+            return allResults;
         }
 
-        public async Task<List<GooglePlaceModel>> GetGooglePlacesDetails(List<GooglePlaceModel> googlePlaces)
-        {
+        //public async Task<List<GooglePlaceModel>> GetGooglePlacesDetails(List<GooglePlaceModel> googlePlaces)
+        //{
             
-            List<GooglePlaceModel> placesDetails = new List<GooglePlaceModel>();
+        //    List<GooglePlaceModel> placesDetails = new List<GooglePlaceModel>();
 
-            foreach (var place in googlePlaces)
-            {
-                if (string.IsNullOrEmpty(place.Place_Id)) continue;
+        //    foreach (var place in googlePlaces)
+        //    {
+        //        if (string.IsNullOrEmpty(place.Place_Id)) continue;
 
-                // 1. Build URL correctly (avoiding double question marks)
-                string endpointPath = "maps/api/place/details/json";
-                string queryParams = $"?place_id={place.Place_Id}&key={_apiKey}";
-                string fullRequestUri = endpointPath + queryParams;
+        //        // 1. Build URL correctly (avoiding double question marks)
+        //        string endpointPath = "maps/api/place/details/json";
+        //        string queryParams = $"?place_id={place.Place_Id}&key={_apiKey}";
+        //        string fullRequestUri = endpointPath + queryParams;
 
-                // 2. Use 'await' instead of '.Result' to prevent blocking the thread
-                var response = await _httpClient.GetAsync(fullRequestUri);
+        //        // 2. Use 'await' instead of '.Result' to prevent blocking the thread
+        //        var response = await _httpClient.GetAsync(fullRequestUri);
 
-                response.EnsureSuccessStatusCode();
+        //        response.EnsureSuccessStatusCode();
 
-                // 3. Read into the specific Details response wrapper
-                var detailsResponse = await response.Content.ReadFromJsonAsync<GooglePlaceDetailsResponse>();
+        //        // 3. Read into the specific Details response wrapper
+        //        var detailsResponse = await response.Content.ReadFromJsonAsync<GooglePlaceDetailsResponse>();
 
-                // 4. Add the successfully parsed detailed Result to our list
-                if (detailsResponse != null && detailsResponse.Result != null)
-                {
-                    placesDetails.Add(detailsResponse.Result);
-                }
-            }
+        //        // 4. Add the successfully parsed detailed Result to our list
+        //        if (detailsResponse != null && detailsResponse.Result != null)
+        //        {
+        //            placesDetails.Add(detailsResponse.Result);
+        //        }
+        //    }
 
-            return placesDetails;
-        }
+        //    return placesDetails;
+        //}
     }
 }

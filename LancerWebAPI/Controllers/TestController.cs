@@ -7,12 +7,7 @@ namespace LancerWebAPI.Controllers
     [Route("[controller]")]
     public class TestController : ControllerBase
     {
-        private WebsiteModel testModel = new WebsiteModel() 
-        {
-            Id = Guid.NewGuid(),
-            Name = "test",
-        };
-
+        
         private readonly ILogger<TestController> _logger;
 
         public TestController(ILogger<TestController> logger)
@@ -22,7 +17,7 @@ namespace LancerWebAPI.Controllers
         }
 
         [HttpGet("/api/testdata")]
-        public IActionResult Get() { return StatusCode(StatusCodes.Status200OK, testModel); }
+        public IActionResult Get() { return StatusCode(StatusCodes.Status200OK); }
 
     }
 }
