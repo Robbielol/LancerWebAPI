@@ -4,8 +4,8 @@ using LancerWebAPI.Services;
 
 namespace LancerWebAPI.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class WebsiteController : ControllerBase
     {
         private  IWebsiteServices _websiteServices;
