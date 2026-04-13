@@ -1,4 +1,6 @@
 ﻿using System.Text.Json.Nodes;
+using MongoDB.Driver;
+
 
 namespace LancerWebAPI.Services
 {
@@ -7,9 +9,9 @@ namespace LancerWebAPI.Services
 
         private IDatabaseService local;
         private readonly GoogleMapsAPIService _googleMapsAPIService;
-        public WebsiteServices(GoogleMapsAPIService googleMapsAPIService) { 
+        public WebsiteServices(GoogleMapsAPIService googleMapsAPIService, IMongoClient client) { 
             _googleMapsAPIService = googleMapsAPIService;
-            local = new DatabaseService(); 
+            local = new DatabaseService(client); 
         }
 
 
@@ -40,6 +42,7 @@ namespace LancerWebAPI.Services
         public List<GooglePlaceModel> FilterPlaces(List<GooglePlaceModel> placesDetails)
         {
             List<GooglePlaceModel> placesNoWebsite = new();
+            //TODO Change this variable to string builder
             string website = "";
 
             foreach (GooglePlaceModel place in placesDetails)

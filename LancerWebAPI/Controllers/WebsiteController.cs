@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
 using LancerWebAPI.Services;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,8 +9,8 @@ namespace LancerWebAPI.Controllers
     [Route("api/[controller]")]
     public class WebsiteController : ControllerBase
     {
-        private  IWebsiteServices _websiteServices;
-        public WebsiteController(WebsiteServices websiteServices) 
+        private IWebsiteServices _websiteServices;
+        public WebsiteController(WebsiteServices websiteServices, IMongoClient client) 
         {
             _websiteServices =  websiteServices;
         }

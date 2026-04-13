@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using System.Text.Json.Serialization;
 
 namespace LancerWebAPI
 {
@@ -32,6 +33,7 @@ namespace LancerWebAPI
 
         // Helper property so your Controller/WebsiteServices can still just call "place.Name"
         [JsonIgnore]
+        [BsonIgnore]
         public string Name => DisplayName?.Text;
     }
 }

@@ -16,7 +16,7 @@ builder.Services.AddCors(options =>
 });
 
 // Pull the connection string from appsettings.json (or AWS environment variables)
-var mongoConnectionString = builder.Configuration.GetConnectionString("MongoDb");
+var mongoConnectionString = builder.Configuration.GetConnectionString("MongoConnectionString");
 
 // Register the MongoClient as a Singleton so the whole app can use it
 builder.Services.AddSingleton<IMongoClient>(new MongoClient(mongoConnectionString));
@@ -46,5 +46,7 @@ app.UseCors("AllowAll"); // Apply the CORS policy
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapGet("/", () => "API is healthy!");
 
 app.Run();

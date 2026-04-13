@@ -5,7 +5,8 @@ namespace LancerWebAPI.Services
 {
     public class DatabaseService : DataBaseConnectionService
     {
-        public DatabaseService():base() {
+
+        public DatabaseService(IMongoClient config):base(config) {
             
         }
 

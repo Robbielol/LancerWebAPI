@@ -1,4 +1,4 @@
-﻿using MongoDB.Bson;
+﻿using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 
 
@@ -10,20 +10,23 @@ namespace LancerWebAPI.Services
         protected IMongoDatabase _database;
         protected IMongoCollection<GooglePlaceModel> _collection;
 
-        protected DataBaseConnectionService() 
+        protected DataBaseConnectionService(IMongoClient client) 
         {
-            string connectionString = "mongodb://localhost:27017/";
+
             try
             {
                 Console.WriteLine("connecting to database...");
-                _client = new MongoClient(connectionString);
-                _database = _client.GetDatabase("local");
+
+
+                // Note: You might want to pull the database name from config too eventually!
+                _database = _client.GetDatabase("Lancer");
                 _collection = _database.GetCollection<GooglePlaceModel>("Websites");
+
                 Console.WriteLine("Connected to database.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Failed to connect to database. Error: " +ex.Message);
+                Console.WriteLine("Failed to connect to database. Error: " + ex.Message);
             }
         }
 
