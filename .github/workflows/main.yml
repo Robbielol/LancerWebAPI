@@ -1,0 +1,40 @@
+name: Deploy LancerFind API to AWS
+
+on:
+  push:
+    branches:
+      - main # This tells the robot to only run when you push to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x' # Keep this at 8.0 if you downgraded the server, or change to 10.0 if you upgraded!
+
+    - name: Publish API
+      # Notice we are using the exact command that bypassed the solution folder trap!
+      run: dotnet publish ./LancerWebAPI/LancerWebAPI.csproj -c Release -o ./publish
+
+    - name: Create Zip File
+      # This moves into the publish folder and zips it, exactly like you did manually
+      run: |
+        cd publish
+        zip -r ../api-deployment.zip .
+
+    - name: Deploy to Elastic Beanstalk
+      uses: einaregilsson/beanstalk-deploy@v22
+      with:
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        application_name: lancer-api
+        environment_name: Lancer-api-env
+        version_label: "api-${{ github.sha }}" # This gives every upload a unique ID
+        region: us-east-1
+        deployment_package: api-deployment.zip
