@@ -50,10 +50,10 @@ namespace LancerWebAPI.Controllers
         [HttpGet("{location}/{query}/{distance}")]
         public async Task<ActionResult<IEnumerable<GooglePlaceModel>>> GetWebsites(string location, string query, int distance = 0)
         {
-            query = null;
+
             if (string.IsNullOrEmpty(location) || string.IsNullOrEmpty(query))
             {
-                return BadRequest("Location and query are STUPID!!! needed to supply percise data.");
+                return BadRequest("Location and query are needed to supply percise data.");
             }
 
             List<GooglePlaceModel> models = (List<GooglePlaceModel>) await _websiteServices.GetAllPlaces(location, query, distance);

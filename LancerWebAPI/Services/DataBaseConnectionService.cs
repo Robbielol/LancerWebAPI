@@ -6,7 +6,6 @@ namespace LancerWebAPI.Services
 {
     public abstract class DataBaseConnectionService : IDatabaseService
     {
-        protected IMongoClient _client;
         protected IMongoDatabase _database;
         protected IMongoCollection<GooglePlaceModel> _collection;
 
@@ -19,7 +18,7 @@ namespace LancerWebAPI.Services
 
 
                 // Note: You might want to pull the database name from config too eventually!
-                _database = _client.GetDatabase("Lancer");
+                _database = client.GetDatabase("Lancer");
                 _collection = _database.GetCollection<GooglePlaceModel>("Websites");
 
                 Console.WriteLine("Connected to database.");
