@@ -3,7 +3,7 @@ name: Deploy LancerFind API to AWS
 on:
   push:
     branches:
-      - main # This tells the robot to only run when you push to the main branch
+      - master # This tells the robot to only run when you push to the main branch
 
 jobs:
   deploy:
