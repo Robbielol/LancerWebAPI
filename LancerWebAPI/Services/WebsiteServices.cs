@@ -1,4 +1,6 @@
 ﻿using System.Text.Json.Nodes;
+using LancerWebAPI.Database;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 
@@ -7,33 +9,41 @@ namespace LancerWebAPI.Services
     public class WebsiteServices : IWebsiteServices
     {
 
-        private IDatabaseService local;
+        private readonly PlaceRepository _placeRepo;
+        private readonly SearchCacheRepository _searchCacheRepo;
         private readonly GoogleMapsAPIService _googleMapsAPIService;
-        public WebsiteServices(GoogleMapsAPIService googleMapsAPIService, IMongoClient client) { 
+        public WebsiteServices(GoogleMapsAPIService googleMapsAPIService, PlaceRepository placeRepository, SearchCacheRepository searchCacheRepository) { 
             _googleMapsAPIService = googleMapsAPIService;
-            local = new DatabaseService(client); 
+            _placeRepo = placeRepository;
+            _searchCacheRepo = searchCacheRepository;
         }
 
 
-        public async Task<IEnumerable<GooglePlaceModel>> GetAllPlaces(string location, string query, int distance)
+        public async Task<IEnumerable<GooglePlaceModel>> GetAllPlaces(string location, string businessType, int distance)
         {
+            // Check if location and business exists in DB
+            SearchCacheModel searchCache = await _searchCacheRepo.GetCacheAsync(location, businessType);
 
-            //Check if similiar query in in DB
-            IEnumerable<GooglePlaceModel> existingPlaces = await local.Read<GooglePlaceModel>(query);
-
-            //Return if has values if not continue
-            if (existingPlaces != null && existingPlaces.Any())
+            // If true, check placeIds list have values. Then retreive list from Places collection
+            if (searchCache != null && searchCache.CachedPlacedIds.Any())
             {
-                return existingPlaces;
+                return await _placeRepo.GetByPlaceIDsAsync(searchCache.CachedPlacedIds);
             }
 
             //Go to GoogleAPI and Get Data
-            List<GooglePlaceModel> placesDetails = await _googleMapsAPIService.GetGooglePlaces(location, query, distance); 
-            //List<GooglePlaceModel> detailedPlaces = await _googleMapsAPIService.GetGooglePlacesDetails(placesDetails);
-            // TODO Safe detailsPlaces to DB, decide to filter first to after. 
+            List<GooglePlaceModel> placesDetails = await _googleMapsAPIService.GetGooglePlaces(location, businessType, distance); 
+
+            //Filter list to return objects that don't have a valid value for website
             List<GooglePlaceModel> filteredPlaces = FilterPlaces(placesDetails);
+
+            // Extract just the IDs from the full business objects
+            var extractedIds = filteredPlaces.Select(place => place.Place_Id).ToList();
+
+            //Add Places to SearchCacheModel and create new entry in the database collection.
+            await _searchCacheRepo.InsertOneAsync(new SearchCacheModel(location, businessType, extractedIds));
+
             //Send data to DB
-            await local.Create<GooglePlaceModel>(filteredPlaces);
+            await _placeRepo.InsertManyAsync(filteredPlaces);
 
             //Return data            
             return filteredPlaces;

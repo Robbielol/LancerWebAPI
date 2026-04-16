@@ -1,4 +1,5 @@
 // Program.cs in .NET 6+
+using LancerWebAPI.Database;
 using LancerWebAPI.Services;
 using MongoDB.Driver;
 
@@ -20,6 +21,8 @@ var mongoConnectionString = builder.Configuration.GetConnectionString("MongoConn
 
 // Register the MongoClient as a Singleton so the whole app can use it
 builder.Services.AddSingleton<IMongoClient>(new MongoClient(mongoConnectionString));
+builder.Services.AddSingleton<PlaceRepository>();
+builder.Services.AddSingleton<SearchCacheRepository>();
 
 // Add services to the container.
 builder.Services.AddControllers();
