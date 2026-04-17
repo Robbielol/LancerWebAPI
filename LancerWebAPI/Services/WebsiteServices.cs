@@ -18,6 +18,10 @@ namespace LancerWebAPI.Services
             _searchCacheRepo = searchCacheRepository;
         }
 
+        public async Task<IEnumerable<SearchCacheModel>> GetAllSearchs() 
+        {
+            return await _searchCacheRepo.GetAllAsync();
+        }
 
         public async Task<IEnumerable<GooglePlaceModel>> GetAllPlaces(string location, string businessType, int distance)
         {
@@ -25,9 +29,9 @@ namespace LancerWebAPI.Services
             SearchCacheModel searchCache = await _searchCacheRepo.GetCacheAsync(location, businessType);
 
             // If true, check placeIds list have values. Then retreive list from Places collection
-            if (searchCache != null && searchCache.CachedPlacedIds.Any())
+            if (searchCache != null && searchCache.CachedPlaceIds.Any())
             {
-                return await _placeRepo.GetByPlaceIDsAsync(searchCache.CachedPlacedIds);
+                return await _placeRepo.GetByPlaceIDsAsync(searchCache.CachedPlaceIds);
             }
 
             //Go to GoogleAPI and Get Data

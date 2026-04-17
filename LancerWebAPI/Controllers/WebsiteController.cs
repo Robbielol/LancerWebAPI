@@ -2,6 +2,7 @@
 using MongoDB.Driver;
 using LancerWebAPI.Services;
 using LancerWebAPI.Database;
+using System.Threading.Tasks;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LancerWebAPI.Controllers
@@ -49,6 +50,12 @@ namespace LancerWebAPI.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+        }
+        // searches
+        [HttpGet]
+        public async Task<IEnumerable<string>> GetSearches()
+        {
+            return (IEnumerable<string>) await _websiteServices.GetAllSearchs();
         }
 
         [HttpGet("{location}/{query}/{distance}")]
