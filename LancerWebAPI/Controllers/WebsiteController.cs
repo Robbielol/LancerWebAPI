@@ -20,13 +20,6 @@ namespace LancerWebAPI.Controllers
             
         }
 
-        // GET: api/<WebsiteController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
         // GET api/<WebsiteController>/5
         [HttpGet("{id}")]
         public string Get(int id)
@@ -52,7 +45,7 @@ namespace LancerWebAPI.Controllers
         {
         }
         // searches
-        [HttpGet]
+        [HttpGet("searches")]
         public async Task<IEnumerable<string>> GetSearches()
         {
             return (IEnumerable<string>) await _websiteServices.GetAllSearchs();
