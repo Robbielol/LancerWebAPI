@@ -46,9 +46,10 @@ namespace LancerWebAPI.Controllers
         }
         // searches
         [HttpGet("searches")]
-        public async Task<IEnumerable<string>> GetSearches()
+        public async Task<ActionResult<IEnumerable<SearchCacheModel>>> GetSearches()
         {
-            return (IEnumerable<string>) await _websiteServices.GetAllSearchs();
+            List<SearchCacheModel> results = (List<SearchCacheModel>) await _websiteServices.GetAllSearchs();
+            return Ok(results);
         }
 
         [HttpGet("{location}/{query}/{distance}")]
