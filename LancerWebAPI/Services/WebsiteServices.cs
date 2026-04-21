@@ -40,6 +40,8 @@ namespace LancerWebAPI.Services
             //Filter list to return objects that don't have a valid value for website
             List<GooglePlaceModel> filteredPlaces = FilterPlaces(placesDetails);
 
+            if (filteredPlaces == null || filteredPlaces.Count == 0) return filteredPlaces;
+
             // Extract just the IDs from the full business objects
             var extractedIds = filteredPlaces.Select(place => place.Place_Id).ToList();
 
