@@ -1,4 +1,6 @@
-﻿namespace LancerWebAPI.Services
+﻿using LancerWebAPI.Models;
+
+namespace LancerWebAPI.Services
 {
     public interface IWebsiteServices
     {

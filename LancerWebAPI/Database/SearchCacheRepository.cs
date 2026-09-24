@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver;
+﻿using LancerWebAPI.Models;
+using MongoDB.Driver;
 
 namespace LancerWebAPI.Database
 {

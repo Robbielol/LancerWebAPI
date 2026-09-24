@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using System.Text.Json.Serialization;
 
-namespace LancerWebAPI
+namespace LancerWebAPI.Models
 {
     // The New API wraps the name in a "displayName.text" object
     public class DisplayName

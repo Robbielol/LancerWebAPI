@@ -3,6 +3,7 @@ using MongoDB.Driver;
 using LancerWebAPI.Services;
 using LancerWebAPI.Database;
 using System.Threading.Tasks;
+using LancerWebAPI.Models;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace LancerWebAPI.Controllers
@@ -17,7 +18,6 @@ namespace LancerWebAPI.Controllers
         public WebsiteController(WebsiteServices websiteServices) 
         {
             _websiteServices =  websiteServices;
-            
         }
 
         // GET api/<WebsiteController>/5

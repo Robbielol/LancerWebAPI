@@ -1,8 +1,6 @@
-﻿
+﻿using System.Text.Json.Serialization;
 
-using System.Text.Json.Serialization;
-
-namespace LancerWebAPI
+namespace LancerWebAPI.Models
 {
     public class GooglePlacesResponse
     {

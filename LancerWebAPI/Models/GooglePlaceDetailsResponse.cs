@@ -1,4 +1,4 @@
-﻿namespace LancerWebAPI
+﻿namespace LancerWebAPI.Models
 {
     public class GooglePlaceDetailsResponse
     {

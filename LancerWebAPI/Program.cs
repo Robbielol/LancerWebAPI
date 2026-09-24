@@ -23,12 +23,14 @@ var mongoConnectionString = builder.Configuration.GetConnectionString("MongoConn
 builder.Services.AddSingleton<IMongoClient>(new MongoClient(mongoConnectionString));
 builder.Services.AddSingleton<PlaceRepository>();
 builder.Services.AddSingleton<SearchCacheRepository>();
+builder.Services.AddSingleton<UserRepository>();
 
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<GoogleMapsAPIService>();
 builder.Services.AddScoped<WebsiteServices>();
+builder.Services.AddScoped<UserService>();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();

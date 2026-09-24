@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Nodes;
 using LancerWebAPI.Database;
+using LancerWebAPI.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
 

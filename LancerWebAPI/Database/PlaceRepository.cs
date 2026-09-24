@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using LancerWebAPI.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace LancerWebAPI.Database
