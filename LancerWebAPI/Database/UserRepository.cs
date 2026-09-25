@@ -11,7 +11,7 @@ namespace LancerWebAPI.Database
         {
             var filter = Builders<UserModel>.Filter.Where(x => 
                 x.Email.ToLower() == email.ToLower() &&
-                x.Password == password
+                x.PasswordHash == password
             );
 
             return await _collection.Find(filter).FirstOrDefaultAsync();

@@ -1,4 +1,5 @@
-﻿using LancerWebAPI.DTOs;
+﻿using LancerWebAPI.Database;
+using LancerWebAPI.DTOs;
 using LancerWebAPI.Models;
 using LancerWebAPI.Services;
 using Microsoft.AspNetCore.Http;
@@ -9,6 +10,7 @@ namespace LancerWebAPI.Controllers
     public class UsersController : Controller
     {
         private UserService _userService;
+        private UserRepository _userRepo;
 
         public UsersController(UserService userService)
         {
