@@ -39,5 +39,26 @@ namespace LancerWebAPI.Services
             return existingUser != null;
         }
 
+        public async Task<UserModel> LoginUserAsync(LoginRequestUserDto request)
+        {
+            // Check if a user with this email even exists
+            var existingUser = await _userRepository.GetUserByEmailAsync(request.Email);
+            if (existingUser == null)
+            {
+                return null; // User not found
+            }
+
+            // Compare the plain text password from the React form against the database hash
+            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(request.Password, existingUser.PasswordHash);
+
+            if (!isPasswordValid)
+            {
+                return null; // Invalid password
+            }
+
+            // If both pass, return the user model back to the controller
+            return existingUser;
+        }
+
     }
 }

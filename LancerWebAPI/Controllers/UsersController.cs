@@ -35,6 +35,23 @@ namespace LancerWebAPI.Controllers
             return View();
         }
 
+        // POST: api/users/login
+        [HttpPost("login")]
+        public async Task<IActionResult> LoginUser([FromBody] LoginRequestUserDto request)
+        {
+            // Delegate the authentication logic to the Service
+            var user = await _userService.LoginUserAsync(request);
+
+            // Handle failure
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Invalid email or password." });
+            }
+
+            // 3. Handle success
+            return Ok(new { message = "Login successful!", userId = user.Id });
+        }
+
         // POST: UsersController/register
         [HttpPost("register")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterRequestUserDto request)
