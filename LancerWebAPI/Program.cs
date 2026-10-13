@@ -1,4 +1,7 @@
 // Program.cs in .NET 6+
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using LancerWebAPI.Database;
 using LancerWebAPI.Services;
 using MongoDB.Driver;
@@ -14,6 +17,27 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll", policy => {
         policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
     });
+});
+
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var secretKey = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(secretKey)
+    };
 });
 
 // Pull the connection string from appsettings.json (or AWS environment variables)
@@ -48,6 +72,7 @@ app.UseRouting(); // Ensure UseRouting is before UseCors and UseAuthorization
 
 app.UseCors("AllowAll"); // Apply the CORS policy
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
