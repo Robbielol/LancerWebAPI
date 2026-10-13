@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LancerWebAPI.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class UsersController : Controller
     {
         private UserService _userService;
